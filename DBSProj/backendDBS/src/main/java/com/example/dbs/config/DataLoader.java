@@ -1,28 +1,14 @@
 package com.example.dbs.config;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.dbs.model.Club;
-import com.example.dbs.model.ClubMembership;
-import com.example.dbs.model.FloorManager;
-import com.example.dbs.model.Professor;
-import com.example.dbs.model.Room;
-import com.example.dbs.model.Security;
-import com.example.dbs.model.Student;
-import com.example.dbs.model.StudentCouncil;
-import com.example.dbs.repository.ClubMembershipRepository;
-import com.example.dbs.repository.ClubRepository;
 import com.example.dbs.repository.FloorManagerRepository;
 import com.example.dbs.repository.ProfessorRepository;
-import com.example.dbs.repository.RoomRepository;
-import com.example.dbs.repository.SecurityRepository;
-import com.example.dbs.repository.StudentCouncilRepository;
 import com.example.dbs.repository.StudentRepository;
 import com.example.dbs.repository.UserRepository;
 
@@ -32,13 +18,9 @@ public class DataLoader implements CommandLineRunner {
     @Autowired private UserRepository userRepository;
     @Autowired private StudentRepository studentRepository;
     @Autowired private ProfessorRepository professorRepository;
-    @Autowired private ClubRepository clubRepository;
     @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private ClubMembershipRepository clubMembershipRepository;
     @Autowired private FloorManagerRepository floorManagerRepository;
-    @Autowired private RoomRepository roomRepository;
-    @Autowired private StudentCouncilRepository studentCouncilRepository;
-    @Autowired private SecurityRepository securityRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
     
     @Override
     @Transactional
@@ -58,182 +40,164 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void loadUsersAndRoles() {
-        // --- Create Students ---
-        Student student1 = new Student();
-        student1.setEmail("poc.student1@example.com");
-        student1.setPassword(passwordEncoder.encode("studentpass1"));
-        student1.setName("PoC Student One");
-        student1.setPhone(1112223330L);
-        student1.setRegno(Long.valueOf(23100101));
-        studentRepository.save(student1);
+        // --- Create Students using JdbcTemplate ---
+        String studentPass1Hash = passwordEncoder.encode("studentpass1");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "poc.student1@example.com", studentPass1Hash, "PoC Student One", 1112223330L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO student (email, regno) VALUES (?, ?)",
+            "poc.student1@example.com", 23100101L
+        );
 
-        Student student2 = new Student();
-        student2.setEmail("poc.student2@example.com");
-        student2.setPassword(passwordEncoder.encode("studentpass2"));
-        student2.setName("PoC Student Two");
-        student2.setPhone(1112223331L);
-        student2.setRegno(Long.valueOf(23100102));
-        studentRepository.save(student2);
+        String studentPass2Hash = passwordEncoder.encode("studentpass2");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "poc.student2@example.com", studentPass2Hash, "PoC Student Two", 1112223331L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO student (email, regno) VALUES (?, ?)",
+            "poc.student2@example.com", 23100102L
+        );
 
-        // --- Create Professors ---
-        Professor prof1 = new Professor();
-        prof1.setEmail("faculty.head1@example.com");
-        prof1.setPassword(passwordEncoder.encode("profpass1"));
-        prof1.setName("Faculty Head One");
-        prof1.setPhone(9998887770L);
-        prof1.setIsCultural(false); // Example value
-        professorRepository.save(prof1);
+        // --- Create Professors using JdbcTemplate ---
+        String profPass1Hash = passwordEncoder.encode("profpass1");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "faculty.head1@example.com", profPass1Hash, "Faculty Head One", 9998887770L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO professor (email, is_cultural) VALUES (?, ?)",
+            "faculty.head1@example.com", false
+        );
 
-        Professor prof2 = new Professor();
-        prof2.setEmail("faculty.head2@example.com");
-        prof2.setPassword(passwordEncoder.encode("profpass2"));
-        prof2.setName("Faculty Head Two");
-        prof2.setPhone(9998887771L);
-        prof2.setIsCultural(true); // Example value
-        professorRepository.save(prof2);
+        String profPass2Hash = passwordEncoder.encode("profpass2");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "faculty.head2@example.com", profPass2Hash, "Faculty Head Two", 9998887771L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO professor (email, is_cultural) VALUES (?, ?)",
+            "faculty.head2@example.com", false
+        );
+        
+        String profPass3Hash = passwordEncoder.encode("profpass3");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "cultural.prof@example.com", profPass3Hash, "Cultural Prof", 8887776661L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO professor (email, is_cultural) VALUES (?, ?)",
+            "cultural.prof@example.com", true // Cultural professor
+        );
 
-        // --- create  floor managers ---
-        FloorManager manager1 = new FloorManager();
-        manager1.setEmail("floor.manager1@example.com");
-        manager1.setPassword(passwordEncoder.encode("managerpass1"));
-        manager1.setName("Floor Manager One");
-        manager1.setPhone(4445556661L);
-        floorManagerRepository.save(manager1);
+        // --- Create Floor Managers using JdbcTemplate ---
+        String managerPass1Hash = passwordEncoder.encode("managerpass1");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "floor.manager1@example.com", managerPass1Hash, "Floor Manager One", 4445556661L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO floor_manager (email) VALUES (?)",
+            "floor.manager1@example.com"
+        );
 
-        FloorManager manager2 = new FloorManager();
-        manager2.setEmail("floor.manager2@example.com");
-        manager2.setPassword(passwordEncoder.encode("managerpass2"));
-        manager2.setName("Floor Manager Two");
-        manager2.setPhone(4445556662L);
-        floorManagerRepository.save(manager2);
+        String managerPass2Hash = passwordEncoder.encode("managerpass2");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "floor.manager2@example.com", managerPass2Hash, "Floor Manager Two", 4445556662L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO floor_manager (email) VALUES (?)",
+            "floor.manager2@example.com"
+        );
 
-        FloorManager manager3 = new FloorManager();
-        manager3.setEmail("floor.manager3@example.com");
-        manager3.setPassword(passwordEncoder.encode("managerpass3"));
-        manager3.setName("Floor Manager Three");
-        manager3.setPhone(4445556663L);
-        floorManagerRepository.save(manager3);
 
-        FloorManager manager4 = new FloorManager();
-        manager4.setEmail("floor.manager4@example.com");
-        manager4.setPassword(passwordEncoder.encode("managerpass4"));
-        manager4.setName("Floor Manager Four");
-        manager4.setPhone(4445556664L);
-        floorManagerRepository.save(manager4);
+        // --- Create Student Council Member using JdbcTemplate ---
+        String scPass1Hash = passwordEncoder.encode("scpass1");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "sc.member1@example.com", scPass1Hash, "Student President", 1234567890L
+        );
+        // SC Member is also a Student first
+        jdbcTemplate.update(
+            "INSERT INTO student (email, regno) VALUES (?, ?)",
+            "sc.member1@example.com", 23100103L
+        );
+        // Then insert into student_council table
+        jdbcTemplate.update(
+            "INSERT INTO student_council (email, position) VALUES (?, ?)",
+            "sc.member1@example.com", "PRESIDENT"
+        );
 
-        FloorManager manager5 = new FloorManager();
-        manager5.setEmail("floor.manager5@example.com");
-        manager5.setPassword(passwordEncoder.encode("managerpass5"));
-        manager5.setName("Floor Manager Five");
-        manager5.setPhone(4445556665L);
-        floorManagerRepository.save(manager5);
+        // --- Create Security Member using JdbcTemplate ---
+        String securityPass1Hash = passwordEncoder.encode("securitypass1");
+        jdbcTemplate.update(
+            "INSERT INTO users (email, password, name, phone) VALUES (?, ?, ?, ?)",
+            "security1@example.com", securityPass1Hash, "Security One", 0000000000L
+        );
+        jdbcTemplate.update(
+            "INSERT INTO security (email) VALUES (?)",
+            "security1@example.com"
+        );
 
-        // --- create SC member ---
-        StudentCouncil member = new StudentCouncil();
-        member.setEmail("sc.member1@example.com");
-        member.setPassword(passwordEncoder.encode("scpass1"));
-        member.setName("Student President");
-        member.setPhone(1234567890L);
-        member.setPosition("PRESIDENT");
-        member.setRegno(Long.valueOf(23100103));
-        studentCouncilRepository.save(member);
 
-        // --- create security dude ---
-        Security security = new Security();
-        security.setEmail("security1@example.com");
-        security.setPassword(passwordEncoder.encode("securitypass1"));
-        security.setName("Security One");
-        security.setPhone(0000000000L);
-        securityRepository.save(security);
-
-        System.out.println("Loaded sample users.");
+        System.out.println("Loaded sample users via JdbcTemplate.");
     }
 
     private void loadRooms() {
-        Room room1_1 = new Room();
-        room1_1.setBlock("AB1");
-        room1_1.setRoom("101");
-        Optional<FloorManager> manager1Optional = floorManagerRepository.findByEmail("floor.manager1@example.com");
-        if (!manager1Optional.isEmpty()) {
-            FloorManager manager1 = manager1Optional.get();
-            room1_1.setManager(manager1);
-            roomRepository.save(room1_1);
+        // Check if manager exists (using repository or another JdbcTemplate query) before inserting
+        // Simplified example assuming managers are loaded first
+        if (floorManagerRepository.existsById("floor.manager1@example.com")) {
+             jdbcTemplate.update(
+                "INSERT INTO room (block, room, manager_email) VALUES (?, ?, ?)",
+                "AB1", "101", "floor.manager1@example.com"
+            );
+        } else {
+             System.err.println("Skipping room AB1-101 creation, manager floor.manager1@example.com not found.");
         }
 
-        Room room2_1 = new Room();
-        room2_1.setBlock("AB2");
-        room2_1.setRoom("101");
-        Optional<FloorManager> manager2Optional = floorManagerRepository.findByEmail("floor.manager2@example.com");
-        if (!manager2Optional.isEmpty()) {
-            FloorManager manager2 = manager2Optional.get();
-            room2_1.setManager(manager2);
-            roomRepository.save(room2_1);
+        if (floorManagerRepository.existsById("floor.manager2@example.com")) {
+            jdbcTemplate.update(
+                "INSERT INTO room (block, room, manager_email) VALUES (?, ?, ?)",
+                "AB2", "101", "floor.manager2@example.com"
+            );
+        } else {
+             System.err.println("Skipping room AB2-101 creation, manager floor.manager2@example.com not found.");
         }
-
-        Room room3_1 = new Room();
-        room3_1.setBlock("AB3");
-        room3_1.setRoom("101");
-        Optional<FloorManager> manager3Optional = floorManagerRepository.findByEmail("floor.manager3@example.com");
-        if (!manager3Optional.isEmpty()) {
-            FloorManager manager3 = manager3Optional.get();
-            room3_1.setManager(manager3);
-            roomRepository.save(room3_1);
-        }
-
-        Room room4_1 = new Room();
-        room4_1.setBlock("AB4");
-        room4_1.setRoom("101");
-        Optional<FloorManager> manager4Optional = floorManagerRepository.findByEmail("floor.manager4@example.com");
-        if (!manager4Optional.isEmpty()) {
-            FloorManager manager4 = manager4Optional.get();
-            room4_1.setManager(manager4);
-            roomRepository.save(room4_1);
-        }
-
-        Room room5_1 = new Room();
-        room5_1.setBlock("AB5");
-        room5_1.setRoom("101");
-        Optional<FloorManager> manager5Optional = floorManagerRepository.findByEmail("floor.manager5@example.com");
-        if (!manager5Optional.isEmpty()) {
-            FloorManager manager5 = manager5Optional.get();
-            room5_1.setManager(manager5);
-            roomRepository.save(room5_1);
-        }
+        System.out.println("Loaded sample rooms via JdbcTemplate.");
     }
 
     private void loadClubs() {
-        // Ensure the POC student and Faculty Head emails exist from the previous step
-        if (studentRepository.existsById("poc.student1@example.com") && professorRepository.existsById("faculty.head1@example.com")) {
-            Club club1 = new Club();
-            club1.setName("Tech Club");
-            club1.setPocStudentEmail("poc.student1@example.com");
-            club1.setFacultyHeadEmail("faculty.head1@example.com");
-            clubRepository.save(club1);
+        // Check if prerequisite users exist before inserting club and membership
+       if (studentRepository.existsById("poc.student1@example.com") && professorRepository.existsById("faculty.head1@example.com")) {
+           jdbcTemplate.update(
+               "INSERT INTO club (name, poc_student_email, faculty_head_email) VALUES (?, ?, ?)",
+               "Tech Club", "poc.student1@example.com", "faculty.head1@example.com"
+           );
+           // Also add membership
+           jdbcTemplate.update(
+               "INSERT INTO club_membership (club_name, stu_email) VALUES (?, ?)",
+               "Tech Club", "poc.student1@example.com"
+           );
+       } else {
+            System.err.println("Could not create 'Tech Club' via JdbcTemplate because prerequisite users do not exist.");
+       }
 
-            ClubMembership membership1 = new ClubMembership();
-            membership1.setStuEmail("poc.student1@example.com");
-            membership1.setClubName(club1.getName());
-            clubMembershipRepository.save(membership1);
-        } else {
-             System.err.println("Could not create 'Tech Club' because prerequisite users do not exist.");
-        }
+       if (studentRepository.existsById("poc.student2@example.com") && professorRepository.existsById("faculty.head2@example.com")) {
+            jdbcTemplate.update(
+               "INSERT INTO club (name, poc_student_email, faculty_head_email) VALUES (?, ?, ?)",
+               "Music Club", "poc.student2@example.com", "faculty.head2@example.com"
+           );
+           jdbcTemplate.update(
+               "INSERT INTO club_membership (club_name, stu_email) VALUES (?, ?)",
+               "Music Club", "poc.student2@example.com"
+           );
+       } else {
+           System.err.println("Could not create 'Music Club' via JdbcTemplate because prerequisite users do not exist.");
+       }
 
-
-        if (studentRepository.existsById("poc.student2@example.com") && professorRepository.existsById("faculty.head2@example.com")) {
-            Club club2 = new Club();
-            club2.setName("Music Club");
-            club2.setPocStudentEmail("poc.student2@example.com");
-            club2.setFacultyHeadEmail("faculty.head2@example.com");
-            clubRepository.save(club2);
-
-            ClubMembership membership2 = new ClubMembership();
-            membership2.setStuEmail("poc.student2@example.com");
-            membership2.setClubName(club2.getName());
-            clubMembershipRepository.save(membership2);
-        } else {
-            System.err.println("Could not create 'Music Club' because prerequisite users do not exist.");
-        }
-
-         System.out.println("Loaded sample clubs.");
-    }
+       System.out.println("Loaded sample clubs via JdbcTemplate.");
+   }
 }

@@ -15,8 +15,8 @@
 @clubFacultyHeadPassword = profpass1
 
 # Approver: Cultural Professor (Any)
-@culturalProfEmail = faculty.head2@example.com
-@culturalProfPassword = profpass2
+@culturalProfEmail = cultural.prof@example.com
+@culturalProfPassword = profpass3
 
 # Approver: Student Council Member
 @scMemberEmail = sc.member1@example.com
