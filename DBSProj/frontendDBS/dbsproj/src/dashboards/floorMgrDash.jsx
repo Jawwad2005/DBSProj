@@ -42,9 +42,10 @@ const FloorMgrDash = () => {
         if (!bookingsResponse.ok) throw new Error('Failed to load bookings');
         const bookingsData = await bookingsResponse.json();
 
-        // Filter bookings for managed blocks and not already approved
+        // Filter bookings for managed blocks and not already approved/rejected
         const filteredBookings = bookingsData.filter(booking => 
           blocks.includes(booking.block) && 
+          booking.overallStatus !== 'REJECTED' && // New rejection filter
           !booking.approvals?.some(approval => 
             approval.approverEmail === userEmail
           )
@@ -60,6 +61,7 @@ const FloorMgrDash = () => {
     fetchData();
   }, [token, userEmail]);
 
+  // Rest of the component remains unchanged
   const handleCommentChange = (bookingKey, value) => {
     setComments(prev => ({ ...prev, [bookingKey]: value }));
   };

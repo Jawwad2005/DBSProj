@@ -23,11 +23,12 @@ const SecurityDash = () => {
         if (!response.ok) throw new Error('Failed to load bookings');
         const data = await response.json();
         
-        // Filter out bookings already approved/rejected by this security member
+        // Filter out rejected bookings and those already approved/rejected by this security member
         const filtered = data.filter(booking => 
           !booking.approvals?.some(approval => 
             approval.approverEmail === userEmail
-          )
+          ) && 
+          booking.overallStatus !== 'REJECTED'
         );
         
         setBookings(filtered);

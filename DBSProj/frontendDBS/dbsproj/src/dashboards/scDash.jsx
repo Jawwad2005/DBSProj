@@ -24,11 +24,10 @@ const ScDash = () => {
         if (!response.ok) throw new Error('Failed to load bookings');
         const data = await response.json();
 
-        // Filter out bookings already approved/rejected by this SC member
-        const filteredBookings = data.filter(
-          booking => !booking.approvals?.some(
-            approval => approval.approverEmail === userEmail
-          )
+        // Filter out rejected bookings and those already approved/rejected by this SC member
+        const filteredBookings = data.filter(booking => 
+          !booking.approvals?.some(approval => approval.approverEmail === userEmail) &&
+          booking.overallStatus !== 'REJECTED'
         );
         
         setBookings(filteredBookings);

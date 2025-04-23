@@ -59,15 +59,11 @@ const ProfDash = () => {
           );
         }
 
-        // 3. Filter out bookings already approved/rejected by this professor
+        // 3. Filter out bookings already approved/rejected by this professor AND globally rejected bookings
         const filteredBookings = relevantBookings.filter(
           booking =>
-            !(
-              Array.isArray(booking.approvals) &&
-              booking.approvals.some(
-                approval => approval.approverEmail === userEmail
-              )
-            )
+            !booking.approvals?.some(approval => approval.approverEmail === userEmail) &&
+            booking.overallStatus !== 'REJECTED' // New rejection filter
         );
 
         setBookings(filteredBookings);
@@ -80,6 +76,7 @@ const ProfDash = () => {
     fetchData();
   }, [token, userEmail]);
 
+  // ... rest of the component remains unchanged ...
   const handleCommentChange = (bookingKey, value) => {
     setComments(prev => ({ ...prev, [bookingKey]: value }));
   };
